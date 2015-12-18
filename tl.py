@@ -4,6 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 import subprocess
 import time
+import os
 
 from wrappers import GPhoto
 from wrappers import Identify
@@ -13,6 +14,7 @@ from wrappers import NetworkInfo
 MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=30)
 MIN_BRIGHTNESS = 20000
 MAX_BRIGHTNESS = 30000
+IMAGE_DIRECTORY = "/home/pi/timelapse/"
 
 CONFIGS = [(48, "1/1600", 2, 200),
 	   (46, "1/1000", 2, 200),
@@ -67,6 +69,8 @@ def main():
     print "Testing Configs"
     test_configs()
     print "Timelapse"
+	if not os.path.exists(IMAGE_DIRECTORY):
+	  os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
     idy = Identify(subprocess)
     netinfo = NetworkInfo(subprocess)
@@ -98,6 +102,7 @@ def main():
             last_acquired = datetime.now()
 
             print "-> %s %s" % (filename, brightness)
+			os.rename(filename,IMAGE_DIRECTORY+filename)
 
             if brightness < MIN_BRIGHTNESS and current_config < len(CONFIGS) - 1:
                 current_config = current_config + 1
