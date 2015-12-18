@@ -64,8 +64,8 @@ def test_configs():
         time.sleep(1)
 
 def main():
-    #print "Testing Configs"
-    #test_configs()
+    print "Testing Configs"
+    test_configs()
     print "Timelapse"
     camera = GPhoto(subprocess)
     idy = Identify(subprocess)
@@ -83,7 +83,7 @@ def main():
         while True:
             last_started = datetime.now()
             config = CONFIGS[current_config]
-            print "Shot: %d Shutter: %s ISO: %d" % (shot, config[0], config[1])
+            print "Shot: %d Shutter: %s ISO: %d" % (shot, config[1], config[3])
             camera.set_shutter_speed(secs=config[1])
             camera.set_iso(iso=str(config[3]))
             try:
