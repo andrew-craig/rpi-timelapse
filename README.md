@@ -19,11 +19,6 @@ Run
 
 python tl.py
 
-Run on boot
------------
-
-Follow the instructions at <http://learn.adafruit.com/drive-a-16x2-lcd-directly-with-a-raspberry-pi/init-script> using `timelapse` file from this repo instead of `lcd`.
-
 
 Post-Processing
 ===============
@@ -46,6 +41,4 @@ Convert the resulting JPEGs to a timelapse movie
 ffmpeg -r 18 -q:v 2 -start_number XXXX -i /tmp/timelapse/IMG_%d.JPG output.mp4
 ```
 
-
-
-[Demo Video on YouTube (view in HD)](http://www.youtube.com/watch?v=AZbK4acS5Mc)
+Forked from rpi-timelapse by DPS

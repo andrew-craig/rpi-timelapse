@@ -85,7 +85,7 @@ class GPhoto(Wrapper):
 
 
     def capture_image_and_download(self):
-        code, out, err = self.call(self._CMD + " --capture-image-and-download")
+        code, out, err = self.call(self._CMD + " --capture-image-and-download --filename '%Y%m%d%H%M%S.JPG'")
         if code != 0:
             raise Exception(err)
         filename = None
@@ -110,7 +110,7 @@ class GPhoto(Wrapper):
         choices["30"] = "30"
         choices["10"] = "10"
         choices["13"] = "13"
-        choices["15"] = "15"        
+        choices["15"] = "15"
         self._shutter_choices = choices
         return current, choices
 
