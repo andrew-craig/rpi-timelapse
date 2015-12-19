@@ -9,6 +9,7 @@ import os
 from wrappers import GPhoto
 from wrappers import Identify
 from wrappers import NetworkInfo
+from wrappers import Analysis
 
 
 MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=60) # minimum is 50 seconds
@@ -90,6 +91,7 @@ def main():
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
     idy = Identify(subprocess)
+	ana = Analysis(subproces)
     netinfo = NetworkInfo(subprocess)
 
     current_config = 17
@@ -113,7 +115,8 @@ def main():
               print "Retrying..."
               # Occasionally, capture can fail but retries will be successful.
               continue
-            brightness = float(idy.mean_brightness(filename))
+#            brightness = float(idy.mean_brightness(filename))
+            brightness = float(ana.brightness(filename))
 
             print "-> %s %s" % (filename, brightness)
             os.rename(filename,IMAGE_DIRECTORY+filename)

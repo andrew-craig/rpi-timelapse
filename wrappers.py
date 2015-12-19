@@ -61,6 +61,17 @@ class Identify(Wrapper):
             raise Exception(err)
         return out
 
+class Analysis(wrapper):
+
+    def __init__(self, subprocess):
+        Wrapper.__init__(self, subprocess)
+
+    def brightness( filepath ):
+        im = Image.open(filepath)
+        stat = ImageStat.Stat(im)
+        r,g,b = stat.mean
+        return math.sqrt(0.241*(r**2) + 0.691*(g**2) + 0.068*(b**2))
+
 class GPhoto(Wrapper):
     """ A class which wraps calls to the external gphoto2 process. """
 
