@@ -1,5 +1,7 @@
 import re
 import time
+import math
+from PIL import Image, ImageStat
 
 class Wrapper(object):
 
@@ -61,12 +63,12 @@ class Identify(Wrapper):
             raise Exception(err)
         return out
 
-class Analysis(wrapper):
+class Analysis(Wrapper):
 
     def __init__(self, subprocess):
         Wrapper.__init__(self, subprocess)
 
-    def brightness( filepath ):
+    def brightness(self, filepath):
         im = Image.open(filepath)
         stat = ImageStat.Stat(im)
         r,g,b = stat.mean

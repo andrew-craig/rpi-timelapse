@@ -12,9 +12,9 @@ from wrappers import NetworkInfo
 from wrappers import Analysis
 
 
-MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=60) # minimum is 50 seconds
-MIN_BRIGHTNESS = 20000
-MAX_BRIGHTNESS = 30000
+MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=15) # minimum is 12 seconds
+MIN_BRIGHTNESS = 100
+MAX_BRIGHTNESS = 150
 IMAGE_DIRECTORY = "/home/pi/timelapse/"
 
 CONFIGS = [(47, "1/1600", 4, 200),
@@ -91,10 +91,10 @@ def main():
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
     idy = Identify(subprocess)
-	ana = Analysis(subproces)
+    ana = Analysis(subprocess)
     netinfo = NetworkInfo(subprocess)
 
-    current_config = 17
+    current_config = 20
     shot = 0
     last_acquired = None
     last_started = None
