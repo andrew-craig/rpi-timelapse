@@ -89,6 +89,7 @@ class GPhoto(Wrapper):
         if code != 0:
             raise Exception(err)
         filename = None
+        print "Captured"
         for line in out.split('\n'):
             if line.startswith('Saving file as '):
                 filename = line.split('Saving file as ')[1]
@@ -113,9 +114,10 @@ class GPhoto(Wrapper):
         if secs:
             if self._shutter_choices == None:
                 self.get_shutter_speeds()
-            code, out, err = self.call([self._CMD + " --set-config /main/capturesettings/shutterspeed=" + str(self._shutter_choices[secs])])
+
+            code, out, err = self.call([self._CMD + " --set-config-value /main/capturesettings/shutterspeed=" + str(self._shutter_choices[secs])])
         if index:
-            code, out, err = self.call([self._CMD + " --set-config /main/capturesettings/shutterspeed=" + str(index)])
+            code, out, err = self.call([self._CMD + " --set-config-index /main/capturesettings/shutterspeed=" + str(index)])
 
     def get_isos(self):
         code, out, err = self.call([self._CMD + " --get-config /main/imgsettings/iso"])
