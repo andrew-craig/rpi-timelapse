@@ -85,7 +85,7 @@ def test_configs():
 def main():
     # print "Testing Configs"
     # test_configs()
-    print "Timelapse with %s second interval" % str(MIN_INTER_SHOT_DELAY_SECONDS)
+    print "Timelapse with %s second interval" % str((MIN_INTER_SHOT_DELAY_SECONDS).seconds)
     if not os.path.exists(IMAGE_DIRECTORY):
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
@@ -126,8 +126,7 @@ def main():
 
             if last_started and last_acquired and last_acquired - last_started < MIN_INTER_SHOT_DELAY_SECONDS:
                 print "Processing complete, sleeping for %s" % str(MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started))
-
-				time.sleep((MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started)).seconds)
+		time.sleep((MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started)).seconds)
             shot = shot + 1
     except Exception,e:
         print "Error: %s" %(str(e))
