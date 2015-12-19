@@ -11,7 +11,7 @@ from wrappers import Identify
 from wrappers import NetworkInfo
 
 
-MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=30)
+MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=60) # minimum is 50 seconds
 MIN_BRIGHTNESS = 20000
 MAX_BRIGHTNESS = 30000
 IMAGE_DIRECTORY = "/home/pi/timelapse/"
@@ -83,18 +83,17 @@ def test_configs():
         time.sleep(1)
 
 def main():
-    print "Testing Configs"
-    test_configs()
-    print "Timelapse"
+    # print "Testing Configs"
+    # test_configs()
+    print "Timelapse with %s second interval" % str(MIN_INTER_SHOT_DELAY_SECONDS)
     if not os.path.exists(IMAGE_DIRECTORY):
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
     idy = Identify(subprocess)
     netinfo = NetworkInfo(subprocess)
 
-    current_config = 10
+    current_config = 17
     shot = 0
-    prev_acquired = None
     last_acquired = None
     last_started = None
 
@@ -114,22 +113,21 @@ def main():
               print "Retrying..."
               # Occasionally, capture can fail but retries will be successful.
               continue
-            prev_acquired = last_acquired
             brightness = float(idy.mean_brightness(filename))
-            last_acquired = datetime.now()
 
             print "-> %s %s" % (filename, brightness)
             os.rename(filename,IMAGE_DIRECTORY+filename)
+            last_acquired = datetime.now()
 
             if brightness < MIN_BRIGHTNESS and current_config < len(CONFIGS) - 1:
                 current_config = current_config + 1
             elif brightness > MAX_BRIGHTNESS and current_config > 0:
                 current_config = current_config - 1
-            else:
-                if last_started and last_acquired and last_acquired - last_started < MIN_INTER_SHOT_DELAY_SECONDS:
-                    print "Sleeping for %s" % str(MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started))
 
-                    time.sleep((MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started)).seconds)
+            if last_started and last_acquired and last_acquired - last_started < MIN_INTER_SHOT_DELAY_SECONDS:
+                print "Processing complete, sleeping for %s" % str(MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started))
+
+				time.sleep((MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started)).seconds)
             shot = shot + 1
     except Exception,e:
         print "Error: %s" %(str(e))

@@ -89,7 +89,6 @@ class GPhoto(Wrapper):
         if code != 0:
             raise Exception(err)
         filename = None
-        print "Captured"
         for line in out.split('\n'):
             if line.startswith('Saving file as '):
                 filename = line.split('Saving file as ')[1]
@@ -138,6 +137,6 @@ class GPhoto(Wrapper):
         if iso:
             if self._iso_choices == None:
                 self.get_isos()
-            code, out, err = self.call([self._CMD + " --set-config /main/imgsettings/iso=" + str(self._iso_choices[iso])])
+            code, out, err = self.call([self._CMD + " --set-config-value /main/imgsettings/iso=" + str(self._iso_choices[iso])])
         if index:
-            code, out, err = self.call([self._CMD + " --set-config /main/imgsettings/iso=" + str(index)])
+            code, out, err = self.call([self._CMD + " --set-config-index /main/imgsettings/iso=" + str(index)])
