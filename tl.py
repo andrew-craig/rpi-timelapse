@@ -30,7 +30,7 @@ CONFIGS = [(47, "1/1600", 4, 200),
 	   	(42, "1/500", 4, 200),
 	   	(41, "1/400", 4, 200),
 	   	(40, "1/320", 4, 200),
-	   	(39, "1/250", 4, 200), <option value="x">1/640</option>
+	   	(39, "1/250", 4, 200),
 	   	(38, "1/200", 4, 200),
 	   	(37, "1/160", 4, 200),
 	   	(36, "1/125", 4, 200),
@@ -99,48 +99,57 @@ def main():
     netinfo = NetworkInfo(subprocess)
 
     # Pull Values from Command Line
-	try:
+    try:
       sys.argv[1]
     except NameError:
-      aperture = "2.5"
+      aperture = 3
     else:
-      aperture = sys.argv[1]
+      aperture = int(sys.argv[1])
 
-	try:
+    print aperture
+
+    try:
       sys.argv[2]
     except NameError:
       current_config = 20
     else:
       current_config = int(sys.argv[2])
 
-	try:
+    print current_config
+
+    try:
       sys.argv[3]
     except NameError:
       min_brightness = MIN_BRIGHTNESS
     else:
       min_brightness = int(sys.argv[3])
 
-	try:
+    print min_brightness
+    try:
       sys.argv[4]
     except NameError:
       max_brightness = MAX_BRIGHTNESS
     else:
-      max_brightness = int(sys.argv[3])
+      max_brightness = int(sys.argv[4])
 
-	try:
+    print max_brightness
+
+    try:
       sys.argv[5]
     except NameError:
       shot_interval = SHOT_INTERVAL_SECONDS
     else:
-      max_brightness = timedelta(seconds=int(sys.argv[5]))
+      shot_interval = timedelta(seconds=int(sys.argv[5]))
 
+
+    print shot_interval
     shot = 0
     last_acquired = None
     last_started = None
 
     network_status = netinfo.network_status()
-    print "Timelapse with %s second interval" % str((MIN_INTER_SHOT_DELAY_SECONDS).seconds)
-    camera.set_aperture(aperture)
+    print "Timelapse with %s second interval" % str((shot_interval).seconds)
+    camera.set_aperture(index=aperture)
 
     try:
         while True:
@@ -168,9 +177,9 @@ def main():
             elif brightness > max_brightness and current_config > 0:
                 current_config = current_config - 1
 
-            if last_started and last_acquired and last_acquired - last_started < MIN_INTER_SHOT_DELAY_SECONDS:
-                print "Processing complete, sleeping for %s" % str(MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started))
-		time.sleep((MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started)).seconds)
+            if last_started and last_acquired and last_acquired - last_started < shot_interval:
+                print "Processing complete, sleeping for %s" % str(shot_interval - (last_acquired - last_started))
+		time.sleep((shot_interval - (last_acquired - last_started)).seconds)
             shot = shot + 1
     except Exception,e:
         print "Error: %s" %(str(e))
