@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# USAGE
+# python tl.py aperture config min_brightness max_brightness interval
+
+
 from datetime import datetime
 from datetime import timedelta
 import subprocess
@@ -8,14 +12,8 @@ import os
 import sys
 
 from wrappers import GPhoto
-from wrappers import Identify
-from wrappers import NetworkInfo
+# from wrappers import Identify
 from wrappers import Analysis
-
-# USAGE
-# python tl.py aperture config min_brightness max_brightness interval
-
-sys.argv[0]
 
 SHOT_INTERVAL_SECONDS = timedelta(seconds=15) # minimum is 12 seconds
 MIN_BRIGHTNESS = 40
@@ -94,9 +92,8 @@ def main():
     if not os.path.exists(IMAGE_DIRECTORY):
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
-    idy = Identify(subprocess)
+    # idy = Identify(subprocess)
     ana = Analysis(subprocess)
-    netinfo = NetworkInfo(subprocess)
 
     # Pull Values from Command Line
     try:
@@ -147,7 +144,6 @@ def main():
     last_acquired = None
     last_started = None
 
-    network_status = netinfo.network_status()
     print "Timelapse with %s second interval" % str((shot_interval).seconds)
     camera.set_aperture(index=aperture)
 
@@ -165,7 +161,7 @@ def main():
               print "Retrying..."
               # Occasionally, capture can fail but retries will be successful.
               continue
-#            brightness = float(idy.mean_brightness(filename))
+            # brightness = float(idy.mean_brightness(filename))
             brightness = float(ana.brightness(filename))
 
             print "-> %s %s" % (filename, brightness)

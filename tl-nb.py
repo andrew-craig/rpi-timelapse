@@ -1,17 +1,19 @@
 #!/usr/bin/python
 
+# USAGE
+# python tl.py aperture config interval
+
+
 from datetime import datetime
 from datetime import timedelta
 import subprocess
 import time
 import os
+import sys
 
 from wrappers import GPhoto
-from wrappers import Identify
-from wrappers import NetworkInfo
 
-
-MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=60)
+SHOT_INTERVAL_SECONDS = timedelta(seconds=15) # minimum is 12 seconds
 IMAGE_DIRECTORY = "/home/pi/timelapse/"
 
 CONFIGS = [(47, "1/1600", 4, 200), # 0
@@ -83,26 +85,46 @@ def test_configs():
 def main():
     # print "Testing Configs"
     # test_configs()
-    print "Timelapse"
-	print "Shot | Shutter | ISO"
     if not os.path.exists(IMAGE_DIRECTORY):
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
-    idy = Identify(subprocess)
-    netinfo = NetworkInfo(subprocess)
+    # idy = Identify(subprocess)
+    ana = Analysis(subprocess)
 
-    current_config = 17
+    # Pull Values from Command Line
+    try:
+      sys.argv[1]
+    except NameError:
+      aperture = 3
+    else:
+      aperture = int(sys.argv[1])
+
+    try:
+      sys.argv[2]
+    except NameError:
+      current_config = 20
+    else:
+      current_config = int(sys.argv[2])
+
+    try:
+      sys.argv[3]
+    except NameError:
+      shot_interval = SHOT_INTERVAL_SECONDS
+    else:
+      shot_interval = timedelta(seconds=int(sys.argv[3]))
+
     shot = 0
     last_acquired = None
     last_started = None
 
-    network_status = netinfo.network_status()
+    print "Timelapse with %s second interval" % str((shot_interval).seconds)
+    camera.set_aperture(index=aperture)
 
     try:
         while True:
             last_started = datetime.now()
             config = CONFIGS[current_config]
-            print "%d      %s       %d" % (shot, config[1], config[3])
+            print "Shot: %d Shutter: %s ISO: %d" % (shot, config[1], config[3])
             camera.set_shutter_speed(index=config[0])
             camera.set_iso(iso=str(config[3]))
             try:
@@ -112,17 +134,17 @@ def main():
               print "Retrying..."
               # Occasionally, capture can fail but retries will be successful.
               continue
+
             os.rename(filename,IMAGE_DIRECTORY+filename)
             last_acquired = datetime.now()
 
-            if last_started and last_acquired and last_acquired - last_started < MIN_INTER_SHOT_DELAY_SECONDS:
-                print "Sleeping for %s" % str(MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started))
+            if last_started and last_acquired and last_acquired - last_started < shot_interval:
+                print "Processing complete for %s, sleeping for %s" % str(filename, shot_interval - (last_acquired - last_started))
 
-				time.sleep((MIN_INTER_SHOT_DELAY_SECONDS - (last_acquired - last_started)).seconds)
+			time.sleep((shot_interval - (last_acquired - last_started)).seconds)
             shot = shot + 1
     except Exception,e:
         print "Error: %s" %(str(e))
-
 
 if __name__ == "__main__":
     main()
