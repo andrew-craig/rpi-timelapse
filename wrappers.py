@@ -98,8 +98,8 @@ class GPhoto(Wrapper):
         return stime
 
 
-    def capture_image_and_download(self):
-        code, out, err = self.call(self._CMD + " --capture-image-and-download --filename '%Y%m%d%H%M%S.JPG'")
+    def capture_image_and_download(self, directory):
+        code, out, err = self.call(self._CMD + " --capture-image-and-download --filename " + directory +  "%Y%m%d%H%M%S.JPG")
         if code != 0:
             raise Exception(err)
         filename = None

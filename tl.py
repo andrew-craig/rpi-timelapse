@@ -18,9 +18,16 @@ from wrappers import Analysis
 SHOT_INTERVAL_SECONDS = timedelta(seconds=15) # minimum is 12 seconds
 MIN_BRIGHTNESS = 40
 MAX_BRIGHTNESS = 150
-IMAGE_DIRECTORY = "/home/pi/timelapse/"
+IMAGE_DIRECTORY = "/var/www/timelapse/"
 
-CONFIGS = [(47, "1/1600", 4, 200),
+CONFIGS = [(51, "1/4000", 1, 100),
+		(51, "1/4000", 2, 125),
+		(51, "1/4000", 3, 160),
+		(51, "1/4000", 4, 200),
+		(50, "1/3200", 4, 200),
+		(49, "1/2500", 4, 200),
+		(48, "1/2000", 4, 200),
+		(47, "1/1600", 4, 200),
 		(46, "1/1250", 4, 200),
 	   	(45, "1/1000", 4, 200),
 	   	(44, "1/800", 4, 200),
@@ -155,17 +162,26 @@ def main():
             camera.set_shutter_speed(index=config[0])
             camera.set_iso(iso=str(config[3]))
             try:
-              filename = camera.capture_image_and_download()
+              filename = camera.capture_image_and_download(IMAGE_DIRECTORY)
             except Exception, e:
               print "Error on capture." + str(e)
               print "Retrying..."
               # Occasionally, capture can fail but retries will be successful.
-              continue
+              try:
+                filename = camera.capture_image_and_download(IMAGE_DIRECTORY)
+              except Exception, e:
+                print "Error on capture attempt 2." + str(e)
+                print "Retrying"
+                try:
+                  filename = camera.capture_image_and_download(IMAGE_DIRECTORY)
+                except Exception, e:
+                  print "Error on final capture attempt." + str(e)
+                  print "Exitting"
+                  sys.exit(1)
             # brightness = float(idy.mean_brightness(filename))
             brightness = float(ana.brightness(filename))
-
             print "-> %s %s" % (filename, brightness)
-            os.rename(filename,IMAGE_DIRECTORY+filename)
+            # os.rename(filename, IMAGE_DIRECTORY+filename)
             last_acquired = datetime.now()
 
             if brightness < min_brightness and current_config < len(CONFIGS) - 1:
