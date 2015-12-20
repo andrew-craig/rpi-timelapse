@@ -80,6 +80,7 @@ class GPhoto(Wrapper):
     def __init__(self, subprocess):
         Wrapper.__init__(self, subprocess)
         self._CMD = 'gphoto2'
+        self._aperture_choices = None
         self._shutter_choices = None
         self._iso_choices = None
 
@@ -130,6 +131,30 @@ class GPhoto(Wrapper):
             code, out, err = self.call([self._CMD + " --set-config-value /main/capturesettings/shutterspeed=" + str(self._shutter_choices[secs])])
         if index:
             code, out, err = self.call([self._CMD + " --set-config-index /main/capturesettings/shutterspeed=" + str(index)])
+
+    def get_aperture(self):
+        code, out, err = self.call([self._CMD + " --get-config /main/capturesettings/aperture"])
+        if code != 0:
+            raise Exception(err)
+        choices = {}
+        current = None
+        for line in out.split('\n'):
+            if line.startswith('Choice:'):
+                choices[line.split(' ')[2]] = line.split(' ')[1]
+            if line.startswith('Current:'):
+                current = line.split(' ')[1]
+        self._aperture_choices = choices
+        return current, choices
+
+    def set_aperture(self, aper=None, index=None):
+        code, out, err = None, None, None
+        if aper:
+            if self._aperture_choices == None:
+                self.get_aperture()
+
+            code, out, err = self.call([self._CMD + " --set-config-value /main/capturesettings/aperture=" + str(self._aperture_choices[aper])])
+        if index:
+            code, out, err = self.call([self._CMD + " --set-config-index /main/capturesettings/aperture=" + str(index)])
 
     def get_isos(self):
         code, out, err = self.call([self._CMD + " --get-config /main/imgsettings/iso"])

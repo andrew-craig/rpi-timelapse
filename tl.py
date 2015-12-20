@@ -5,15 +5,20 @@ from datetime import timedelta
 import subprocess
 import time
 import os
+import sys
 
 from wrappers import GPhoto
 from wrappers import Identify
 from wrappers import NetworkInfo
 from wrappers import Analysis
 
+# USAGE
+# python tl.py aperture config min_brightness max_brightness interval
 
-MIN_INTER_SHOT_DELAY_SECONDS = timedelta(seconds=15) # minimum is 12 seconds
-MIN_BRIGHTNESS = 100
+sys.argv[0]
+
+SHOT_INTERVAL_SECONDS = timedelta(seconds=15) # minimum is 12 seconds
+MIN_BRIGHTNESS = 40
 MAX_BRIGHTNESS = 150
 IMAGE_DIRECTORY = "/home/pi/timelapse/"
 
@@ -25,7 +30,7 @@ CONFIGS = [(47, "1/1600", 4, 200),
 	   	(42, "1/500", 4, 200),
 	   	(41, "1/400", 4, 200),
 	   	(40, "1/320", 4, 200),
-	   	(39, "1/250", 4, 200),
+	   	(39, "1/250", 4, 200), <option value="x">1/640</option>
 	   	(38, "1/200", 4, 200),
 	   	(37, "1/160", 4, 200),
 	   	(36, "1/125", 4, 200),
@@ -86,7 +91,6 @@ def test_configs():
 def main():
     # print "Testing Configs"
     # test_configs()
-    print "Timelapse with %s second interval" % str((MIN_INTER_SHOT_DELAY_SECONDS).seconds)
     if not os.path.exists(IMAGE_DIRECTORY):
         os.makedirs(IMAGE_DIRECTORY)
     camera = GPhoto(subprocess)
@@ -94,12 +98,49 @@ def main():
     ana = Analysis(subprocess)
     netinfo = NetworkInfo(subprocess)
 
-    current_config = 20
+    # Pull Values from Command Line
+	try:
+      sys.argv[1]
+    except NameError:
+      aperture = "2.5"
+    else:
+      aperture = sys.argv[1]
+
+	try:
+      sys.argv[2]
+    except NameError:
+      current_config = 20
+    else:
+      current_config = int(sys.argv[2])
+
+	try:
+      sys.argv[3]
+    except NameError:
+      min_brightness = MIN_BRIGHTNESS
+    else:
+      min_brightness = int(sys.argv[3])
+
+	try:
+      sys.argv[4]
+    except NameError:
+      max_brightness = MAX_BRIGHTNESS
+    else:
+      max_brightness = int(sys.argv[3])
+
+	try:
+      sys.argv[5]
+    except NameError:
+      shot_interval = SHOT_INTERVAL_SECONDS
+    else:
+      max_brightness = timedelta(seconds=int(sys.argv[5]))
+
     shot = 0
     last_acquired = None
     last_started = None
 
     network_status = netinfo.network_status()
+    print "Timelapse with %s second interval" % str((MIN_INTER_SHOT_DELAY_SECONDS).seconds)
+    camera.set_aperture(aperture)
 
     try:
         while True:
@@ -122,9 +163,9 @@ def main():
             os.rename(filename,IMAGE_DIRECTORY+filename)
             last_acquired = datetime.now()
 
-            if brightness < MIN_BRIGHTNESS and current_config < len(CONFIGS) - 1:
+            if brightness < min_brightness and current_config < len(CONFIGS) - 1:
                 current_config = current_config + 1
-            elif brightness > MAX_BRIGHTNESS and current_config > 0:
+            elif brightness > max_brightness and current_config > 0:
                 current_config = current_config - 1
 
             if last_started and last_acquired and last_acquired - last_started < MIN_INTER_SHOT_DELAY_SECONDS:
